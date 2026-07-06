@@ -1,4 +1,4 @@
-# Diplom_2
+# Diplom_3
 UI-тесты для веб-приложения **Stellar Burgers**.
 ## 📋 Описание
 
@@ -23,8 +23,12 @@ UI-тесты для веб-приложения **Stellar Burgers**.
 ```bash
 
 src/test/java/com/stellar/burgers/
+├── client/
+│   └── UserClient.java  
 ├── config/
 │ └── BaseTest.java 
+├── model/
+│   └── User.java      
 ├── pageobject/
 │ ├── MainPage.java
 │ ├── LoginPage.java 
