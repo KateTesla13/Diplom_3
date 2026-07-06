@@ -4,6 +4,8 @@ import com.stellar.burgers.config.BaseTest;
 import com.stellar.burgers.pageobject.LoginPage;
 import com.stellar.burgers.pageobject.MainPage;
 import com.stellar.burgers.pageobject.RegisterPage;
+import io.qameta.allure.Description;
+import io.qameta.allure.junit4.DisplayName;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -36,6 +38,8 @@ public class RegistrationTest extends BaseTest {
     }
 
     @Test
+    @DisplayName("Регистрация нового пользователя")
+    @Description("Проверка успешной регистрации с валидными данными и ошибки при пароле менее 6 символов")
     public void registrationTest() {
         System.out.println("📝 Регистрируем пользователя:");
         System.out.println("Имя: " + name);
@@ -54,7 +58,6 @@ public class RegistrationTest extends BaseTest {
         registerPage.setPassword(password);
         registerPage.clickRegisterButton();
 
-        // Ждём, пока появится результат (редирект на /login или сообщение об ошибке)
         boolean isPageReady = registerPage.waitForSuccessOrError();
         System.out.println("✅ Страница обновилась: " + isPageReady);
 

@@ -1,9 +1,10 @@
 package com.stellar.burgers.config;
 
-import com.stellar.burgers.pageobject.LoginPage;
-import com.stellar.burgers.pageobject.MainPage;
-import com.stellar.burgers.pageobject.RegisterPage;
+import com.stellar.burgers.client.UserClient;
+import com.stellar.burgers.model.User;
 import io.github.bonigarcia.wdm.WebDriverManager;
+import io.restassured.RestAssured;
+import io.restassured.response.Response;
 import org.junit.After;
 import org.junit.Before;
 import org.openqa.selenium.WebDriver;
@@ -17,7 +18,10 @@ public class BaseTest {
 
     protected WebDriver driver;
     protected static final String BASE_URL = "https://stellarburgers.education-services.ru";
+    protected static final String API_BASE_URL = "https://stellarburgers.education-services.ru";
     protected String email;
+    protected String accessToken;
+    protected UserClient userClient;
     protected static final String PASSWORD = "Password1";
     protected static final String NAME = "Тестовый Пользователь";
 
@@ -25,6 +29,9 @@ public class BaseTest {
     public void setUp() {
         String browser = System.getProperty("browser", "chrome");
         System.out.println("🚀 Запуск теста для браузера: " + browser);
+
+        RestAssured.baseURI = API_BASE_URL;
+        userClient = new UserClient();
 
         if ("yandex".equals(browser)) {
             WebDriverManager.chromedriver().driverVersion("146.0.7680.188").setup();
@@ -47,29 +54,23 @@ public class BaseTest {
 
     @After
     public void tearDown() {
+        if (accessToken != null) {
+            userClient.deleteUser(accessToken);
+        }
         if (driver != null) {
             driver.quit();
         }
     }
 
-    //регистрация пользователя
+    // Регистрация пользователя через API
     protected void registerUser() {
         email = "testuser_" + UUID.randomUUID() + "@yandex.ru";
+        User user = new User(email, PASSWORD, NAME);
 
-        MainPage mainPage = new MainPage(driver);
-        mainPage.clickPersonalAccount();
+        Response response = userClient.createUser(user);
+        response.then().statusCode(200);
 
-        LoginPage loginPage = new LoginPage(driver);
-        loginPage.clickRegisterLink();
-
-        RegisterPage registerPage = new RegisterPage(driver);
-        registerPage.setName(NAME);
-        registerPage.setEmail(email);
-        registerPage.setPassword(PASSWORD);
-        registerPage.clickRegisterButton();
-
-        registerPage.waitForSuccessOrError();
-
-        System.out.println("✅ Зарегистрирован пользователь: " + email);
+        accessToken = userClient.getAccessToken(response);
+        System.out.println("✅ Зарегистрирован пользователь через API: " + email);
     }
 }
